@@ -1,4 +1,4 @@
-import { getTransactions, updateCategory, updateVendor } from "@/server/modules/transactions/api";
+import { getTransactions, updateCategory, updateVendor, updateStatus } from "@/server/modules/transactions/api";
 
 import { createSchema, createYoga } from "graphql-yoga";
 
@@ -43,6 +43,9 @@ const { handleRequest } = createYoga({
       type Mutation {
         updateVendor(id: String!, vendor: String!): Transaction!
         updateCategory(id: String!, category: String!): Transaction!
+        approveTransaction(id: String!): Transaction!
+        excludeTransaction(id: String!): Transaction!
+        sendTransactionToClient(id: String!): Transaction!
       }
 
     `,
@@ -60,6 +63,18 @@ const { handleRequest } = createYoga({
         },
         updateCategory: async (_, { id, category }) => {
           const transaction = await updateCategory({ id, category });
+          return transaction;
+        },
+        approveTransaction: async (_, { id }) => {
+          const transaction = await updateStatus({ id, status: "Approved" });
+          return transaction;
+        },
+        excludeTransaction: async (_, { id }) => {
+          const transaction = await updateStatus({ id, status: "Excluded" });
+          return transaction;
+        },
+        sendTransactionToClient: async (_, { id }) => {
+          const transaction = await updateStatus({ id, status: "PendingSendToClient" });
           return transaction;
         },
       },
