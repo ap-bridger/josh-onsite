@@ -11,6 +11,14 @@ mutation SendTransactionNotification($ids: [String!]!, $content: String!) {
 }
   `);
 
+const SEND_TRANSACTION_TO_CLIENT = gql(`
+mutation SendTransactionToClient($id: String!) {
+  sendTransactionToClient(id: $id) {
+    id
+  }
+}
+`);
+
 type Column = {
   id: String;
   date: Date;
@@ -131,6 +139,9 @@ const categorizationColumns = [
   allColumns.recievedCents,
   columnHelper.accessor("action", {
     id: "action",
+    cell: ({ row }) => {
+      return <RequestInfoButton transactionId={row.original.id.toString()} />;
+    },
   }),
 ];
 
@@ -308,6 +319,35 @@ const GenerateNotificationButton = ({
   return (
     <button onClick={() => sendTransactionNotification()}>
       Send to Client
+    </button>
+  );
+};
+
+type RequestInfoButtonProps = {
+  transactionId: string;
+};
+const RequestInfoButton = ({ transactionId }: RequestInfoButtonProps) => {
+  const [sendTransactionToClient, {}] = useMutation(
+    SEND_TRANSACTION_TO_CLIENT,
+    {
+      variables: {
+        id: transactionId,
+      },
+      onCompleted: (result) => {
+        alert(JSON.stringify(result));
+      },
+      onError: (error) => {
+        alert(JSON.stringify(error));
+      },
+      refetchQueries: [GET_TRANSACTIONS],
+    }
+  );
+  return (
+    <button
+      style={{ textDecoration: "underline" }}
+      onClick={() => sendTransactionToClient()}
+    >
+      Request Info
     </button>
   );
 };
