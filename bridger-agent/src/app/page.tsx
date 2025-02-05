@@ -23,6 +23,8 @@ type Column = {
   action: String;
   selectedCategory?: string;
   selectedVendor?: string;
+  allVendors?: string[];
+  allCategories?: string[];
 };
 const columnHelper = createColumnHelper<Column>();
 
@@ -36,6 +38,11 @@ const getCategoryColumn = ({ setSelectedCategory }: CategoryColumnProps) => {
       const selectedCategory = cell.row.original.selectedCategory?.toString();
       const currentValue: string =
         selectedCategory || cell.getValue().toString();
+      const options = cell.row.original.allCategories?.map((category) => (
+        <option key={category} value={category}>
+          {category}
+        </option>
+      ));
       return (
         <select
           value={currentValue}
@@ -43,15 +50,7 @@ const getCategoryColumn = ({ setSelectedCategory }: CategoryColumnProps) => {
             setSelectedCategory(cell.row.original.id.toString(), e.target.value)
           }
         >
-          <option key={currentValue} value={currentValue}>
-            {currentValue}
-          </option>
-          <option key={"fsdafdsfs"} value={"Sales"}>
-            Sales
-          </option>
-          <option key={"adfasf"} value={"Travel"}>
-            Travel
-          </option>
+          {options}
         </select>
       );
     },
@@ -67,6 +66,11 @@ const getVendorColumn = ({ setSelectedVendor }: VendorColumnProps) => {
     cell: ({ cell }) => {
       const selectedVendor = cell.row.original.selectedVendor?.toString();
       const currentValue: string = selectedVendor || cell.getValue().toString();
+      const options = cell.row.original.allVendors?.map((vendor) => (
+        <option key={vendor} value={vendor}>
+          {vendor}
+        </option>
+      ));
       return (
         <select
           value={currentValue}
@@ -74,15 +78,7 @@ const getVendorColumn = ({ setSelectedVendor }: VendorColumnProps) => {
             setSelectedVendor(cell.row.original.id.toString(), e.target.value)
           }
         >
-          <option key={currentValue} value={currentValue}>
-            {currentValue}
-          </option>
-          <option key={"fsdafdsfs"} value={"Uber"}>
-            Uber
-          </option>
-          <option key={"adfasf"} value={"Merchant BankCD"}>
-            Merchant BankCD
-          </option>
+          {options}
         </select>
       );
     },
@@ -179,6 +175,8 @@ query Transactions($status: [Status!]!) {
     recievedCents
     status
   }
+  getAllVendors
+  getAllCategories
 }
 `);
 
@@ -228,6 +226,9 @@ export default function Home() {
     });
   };
 
+  const vendors = data?.getAllVendors ?? [];
+  const categories = data?.getAllCategories ?? [];
+
   const categoryColumn = getCategoryColumn({
     setSelectedCategory,
   });
@@ -243,6 +244,8 @@ export default function Home() {
       ...transaction,
       selectedCategory: selectedCategories[transaction.id],
       selectedVendor: selectedVendors[transaction.id],
+      allVendors: vendors,
+      allCategories: categories,
     };
   });
   const pendingTransactionIds = transactions

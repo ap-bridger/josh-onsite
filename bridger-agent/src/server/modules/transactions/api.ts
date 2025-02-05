@@ -28,6 +28,24 @@ export const getTransactions = async ({ status }: { status: [string] }) => {
   }));
 };
 
+export const getAllVendors = async () => {
+  const vendors = await prisma.transaction.findMany({
+    select: {
+      vendor: true,
+    },
+  });
+  return Array.from(new Set(vendors.map((vendor) => vendor.vendor).filter((vendor) => vendor !== "")));
+};
+
+export const getAllCategories = async () => {
+  const categories = await prisma.transaction.findMany({
+    select: {
+      category: true,
+    },
+  });
+  return Array.from(new Set(categories.map((category) => category.category).filter((category) => category !== "")));
+};
+
 export const updateVendor = async ({
   id,
   vendor,
