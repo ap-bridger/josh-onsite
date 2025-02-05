@@ -231,7 +231,7 @@ export default function Home() {
   const columns = columnsMap[currentTable];
   const updatedColumns = useMemo(() => {
     return [...columns, categoryColumn, vendorColumn];
-  }, columns);
+  }, [columns]);
   const transactions = (data?.transactions ?? []).map((transaction: any) => {
     return {
       ...transaction,
