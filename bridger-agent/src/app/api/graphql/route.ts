@@ -52,9 +52,7 @@ const { handleRequest } = createYoga({
       }
 
       type Mutation {
-        updateVendor(id: String!, vendor: String!): Transaction!
-        updateCategory(id: String!, category: String!): Transaction!
-        approveTransaction(id: String!): Transaction!
+        approveTransaction(id: String!, vendor: String!, category: String!): Transaction!
         excludeTransaction(id: String!): Transaction!
         sendTransactionToClient(id: String!): Transaction!
         sendTransactionNotification(
@@ -79,16 +77,8 @@ const { handleRequest } = createYoga({
         },
       },
       Mutation: {
-        updateVendor: async (_, { id, vendor }) => {
-          const transaction = await updateVendor({ id, vendor });
-          return transaction;
-        },
-        updateCategory: async (_, { id, category }) => {
-          const transaction = await updateCategory({ id, category });
-          return transaction;
-        },
-        approveTransaction: async (_, { id }) => {
-          const transaction = await updateStatus({ id, status: "Approved" });
+        approveTransaction: async (_, { id, vendor, category }) => {
+          const transaction = await updateStatus({ id, status: "Approved", vendor, category });
           return transaction;
         },
         excludeTransaction: async (_, { id }) => {
