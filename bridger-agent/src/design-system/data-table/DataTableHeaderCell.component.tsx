@@ -3,10 +3,6 @@ import {
   Header,
   Table as TanstackTable,
 } from "@tanstack/react-table";
-import { handleRightOnlyResize } from "./column-resize";
-import { ColumnResizer } from "../../../ColumnResizer";
-import { DescendingSortIcon } from "../icons/DescendingSortIcon";
-import { AscendingSortIcon } from "../icons/AscendingSortIcon";
 
 export type DataTableHeaderCellProps<TData extends object> = {
   header: Header<TData, unknown>;
@@ -20,12 +16,6 @@ export function DataTableHeaderCell<TData extends object>({
   const borderRightWidth = header.column.getIsLastColumn() ? undefined : "1px";
   let sortIcon = null;
   const sortValue = header.column.getIsSorted();
-
-  if (sortValue == "asc") {
-    sortIcon = <AscendingSortIcon />;
-  } else if (sortValue == "desc") {
-    sortIcon = <DescendingSortIcon />;
-  }
 
   return (
     <>
@@ -66,11 +56,6 @@ export function DataTableHeaderCell<TData extends object>({
             </div>
             {sortIcon}
           </div>
-          {header.column.getCanResize() && !header.column.getIsLastColumn() && (
-            <ColumnResizer
-              onMouseDown={handleRightOnlyResize<TData>({ header, table })}
-            />
-          )}
         </div>
       </th>
     </>
