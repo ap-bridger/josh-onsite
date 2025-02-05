@@ -93,9 +93,13 @@ export const updateCategory = async ({
 export const updateStatus = async ({
   id,
   status,
+  vendor,
+  category
 }: {
   id: string;
   status: string;
+  vendor?: string;
+  category?: string;
 }) => {
   const currentTransaction = await prisma.transaction.findUnique({
     where: {
@@ -120,6 +124,8 @@ export const updateStatus = async ({
     },
     data: {
       status,
+      vendor,
+      category
     },
   });
   return {

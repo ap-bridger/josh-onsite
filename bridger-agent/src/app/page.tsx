@@ -19,6 +19,22 @@ mutation SendTransactionToClient($id: String!) {
 }
 `);
 
+const ADD_TRANSACTION = gql(`
+mutation AddTransaction($id: String!, $vendor: String!, $category: String!) {
+  approveTransaction(id: $id, vendor: $vendor, category: $category) {
+    id
+    lastUpdated
+    date
+    description
+    vendor
+    category
+    spentCents
+    recievedCents
+    status
+  }
+}
+`);
+
 type Column = {
   id: String;
   date: Date;
@@ -140,7 +156,11 @@ const categorizationColumns = [
   columnHelper.accessor("action", {
     id: "action",
     cell: ({ row }) => {
-      return <RequestInfoButton transactionId={row.original.id.toString()} />;
+      return <div>
+        <AddTransactionButton transactionInfo={{transactionId: row.original.id.toString(), category: row.original.selectedCategory?.toString() || row.original.category.toString(), vendor: row.original.selectedVendor?.toString() || row.original.vendor.toString()}}/>
+        <p> </p>
+        <RequestInfoButton transactionId={row.original.id.toString()} />
+        </div>;
     },
   }),
 ];
@@ -294,6 +314,34 @@ export default function Home() {
   );
 }
 
+type AddTransactionButtonProps = {
+  transactionId: string;
+  vendor: string;
+  category: string;
+};
+
+const AddTransactionButton = ({ transactionInfo }: { transactionInfo: AddTransactionButtonProps }) => {
+  const [sendTransactionToClient, {}] = useMutation(ADD_TRANSACTION, {
+    variables: {
+      id: transactionInfo.transactionId,
+      vendor: transactionInfo.vendor,
+      category: transactionInfo.category,
+    },
+    onCompleted: (result) => {
+      alert(JSON.stringify(result));
+    },
+    onError: (error) => {
+      alert(JSON.stringify(error));
+    },
+    refetchQueries: [GET_TRANSACTIONS],
+  });
+  return (
+    <button 
+    style={{ textDecoration: "underline" }}
+    onClick={() => sendTransactionToClient()}>Add</button>
+  );
+};
+
 type GenerateNotificationButtonProps = {
   pendingTransactionIds: String[];
 };
@@ -317,7 +365,8 @@ const GenerateNotificationButton = ({
     }
   );
   return (
-    <button onClick={() => sendTransactionNotification()}>
+    <button 
+    onClick={() => sendTransactionNotification()}>
       Send to Client
     </button>
   );
