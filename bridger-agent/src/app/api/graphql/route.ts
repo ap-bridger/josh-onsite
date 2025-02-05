@@ -1,16 +1,52 @@
 import { greetings } from "@/server/modules/greet/api";
+import { getTransactions } from "@/server/modules/transactions/api";
+
 import { createSchema, createYoga } from "graphql-yoga";
 
 const { handleRequest } = createYoga({
   schema: createSchema({
     typeDefs: /* GraphQL */ `
       type Query {
-        greetings: String
+        transactions(input: TransactionsInput!): [Transaction!]!
+      }
+
+      input TransactionsInput {
+        status: [Status!]!
+      }
+
+      enum Status {
+        AutoCategorized
+        Approved
+        ApprovedSyncedWithQuickBooks
+        Excluded
+        ExcludedSyncedWithQuickBooks
+
+        PendingSendToClient
+        SentToClient
+        ClientCommucationRecieved
+        NeedsHumanApproval
+        NeedsHumanReview
+      }
+
+      type Transaction {
+        id: String!
+        lastUpdated: String!
+        date: String!
+        description: String!
+        vendor: String!
+        category: String!
+        spentCents: Int!
+        recievedCents: Int!
+        status: Status!
+        comments: [String!]!
       }
     `,
     resolvers: {
       Query: {
-        greetings,
+        transactions: async (_, { input }) => {
+          const transactions = await getTransactions(input);
+          return transactions;
+        }
       },
     },
   }),
