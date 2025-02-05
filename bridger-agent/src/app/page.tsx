@@ -17,69 +17,79 @@ type Column = {
 }
 const columnHelper = createColumnHelper<Column>();
 
-const categorizationColumns = [
-  columnHelper.accessor("date", {
+const allColumns = {
+  date: columnHelper.accessor("date", {
     id: "date",
   }),
-  columnHelper.accessor("description", {
+  description: columnHelper.accessor("description", {
     id: "description",
   }),
-  columnHelper.accessor("vendor", {
+  vendor: columnHelper.accessor("vendor", {
     id: "vendor",
   }),
-  columnHelper.accessor("spentCents", {
-    id: "spent",
+  category: columnHelper.accessor("category", {
+    id: "category",
   }),
-  columnHelper.accessor("recievedCents", {
+  spentCents: columnHelper.accessor("spentCents", {
+    id: "spent",
+    cell: ({ cell }) => {
+      const value = Number(cell.getValue());
+      return value === 0 ? "" : Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+      }).format(value / 100);
+    }
+  }),
+  recievedCents: columnHelper.accessor("recievedCents", {
     id: "recieved",
+    cell: ({ cell }) => {
+      const value = Number(cell.getValue());
+      return value === 0 ? "" : Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+      }).format(value / 100);
+    }
+  }),
+  status: columnHelper.accessor("status", {
+    id: "status",
+  }),
+}
+
+const categorizationColumns = [
+  allColumns.date,
+  allColumns.description,
+  allColumns.vendor,
+  allColumns.category,
+  allColumns.spentCents,
+  allColumns.recievedCents,
+  columnHelper.accessor("action", {
+    id: "action",
   }),
 ];
 
 const toQuickBooksColumns = [
-  columnHelper.accessor("date", {
-    id: "date",
-  }),
-  columnHelper.accessor("description", {
-    id: "description",
-  }),
-  columnHelper.accessor("vendor", {
-    id: "vendor",
-  }),
-  columnHelper.accessor("category", {
-    id: "category",
-  }),
-  columnHelper.accessor("spentCents", {
-    id: "spent",
-  }),
-  columnHelper.accessor("recievedCents", {
-    id: "recieved",
-  }),
-  columnHelper.accessor("status", {
-    id: "status",
+  allColumns.date,
+  allColumns.description,
+  allColumns.vendor,
+  allColumns.category,
+  allColumns.spentCents,
+  allColumns.recievedCents,
+  allColumns.status,
+  columnHelper.accessor("action", {
+    id: "action",
   }),
 ];
 
 const toClientColumns = [
-  columnHelper.accessor("date", {
-    id: "date",
-  }),
-  columnHelper.accessor("description", {
-    id: "description",
-  }),
-  columnHelper.accessor("vendor", {
-    id: "vendor",
-  }),
-  columnHelper.accessor("category", {
-    id: "category",
-  }),
-  columnHelper.accessor("spentCents", {
-    id: "spent",
-  }),
-  columnHelper.accessor("recievedCents", {
-    id: "recieved",
-  }),
-  columnHelper.accessor("status", {
-    id: "status",
+  allColumns.date,
+  allColumns.description,
+  allColumns.vendor,
+  allColumns.category,
+  allColumns.spentCents,
+  allColumns.recievedCents,
+  allColumns.status,
+  columnHelper.accessor("action", {
+    id: "action",
   }),
 ];
 
