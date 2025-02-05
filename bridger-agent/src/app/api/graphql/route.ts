@@ -1,5 +1,4 @@
-import { greetings } from "@/server/modules/greet/api";
-import { getTransactions } from "@/server/modules/transactions/api";
+import { getTransactions, updateCategory, updateVendor, updateStatus } from "@/server/modules/transactions/api";
 
 import { createSchema, createYoga } from "graphql-yoga";
 
@@ -33,13 +32,22 @@ const { handleRequest } = createYoga({
         lastUpdated: String!
         date: String!
         description: String!
-        vendor: String!
-        category: String!
+        vendor: String
+        category: String
         spentCents: Int!
         recievedCents: Int!
         status: Status!
         comments: [String!]!
       }
+
+      type Mutation {
+        updateVendor(id: String!, vendor: String!): Transaction!
+        updateCategory(id: String!, category: String!): Transaction!
+        approveTransaction(id: String!): Transaction!
+        excludeTransaction(id: String!): Transaction!
+        sendTransactionToClient(id: String!): Transaction!
+      }
+
     `,
     resolvers: {
       Query: {
@@ -47,6 +55,28 @@ const { handleRequest } = createYoga({
           const transactions = await getTransactions(input);
           return transactions;
         }
+      },
+      Mutation: {
+        updateVendor: async (_, { id, vendor }) => {
+          const transaction = await updateVendor({ id, vendor });
+          return transaction;
+        },
+        updateCategory: async (_, { id, category }) => {
+          const transaction = await updateCategory({ id, category });
+          return transaction;
+        },
+        approveTransaction: async (_, { id }) => {
+          const transaction = await updateStatus({ id, status: "Approved" });
+          return transaction;
+        },
+        excludeTransaction: async (_, { id }) => {
+          const transaction = await updateStatus({ id, status: "Excluded" });
+          return transaction;
+        },
+        sendTransactionToClient: async (_, { id }) => {
+          const transaction = await updateStatus({ id, status: "PendingSendToClient" });
+          return transaction;
+        },
       },
     },
   }),
