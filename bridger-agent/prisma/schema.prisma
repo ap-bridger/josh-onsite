@@ -7,6 +7,27 @@ datasource db {
   url      = "file:./dev.db"
 }
 
-model Greet {
-  id Int @id @default(autoincrement())
+model Transaction {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lastUpdated DateTime
+  date      DateTime
+  description String
+  vendor    String
+  category  String
+  spentCents Int
+  recievedCents Int
+  status    String
+  comments  Comment[]
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  transaction Transaction @relation(fields: [transactionId], references: [id])
+  transactionId String
+  text      String
+  source    String
 }
