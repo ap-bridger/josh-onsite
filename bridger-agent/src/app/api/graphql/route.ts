@@ -1,4 +1,10 @@
-import { getTransactions, updateCategory, updateVendor, updateStatus } from "@/server/modules/transactions/api";
+import {
+  getTransactions,
+  updateCategory,
+  updateVendor,
+  updateStatus,
+  sendClientNotification,
+} from "@/server/modules/transactions/api";
 
 import { createSchema, createYoga } from "graphql-yoga";
 
@@ -46,15 +52,18 @@ const { handleRequest } = createYoga({
         approveTransaction(id: String!): Transaction!
         excludeTransaction(id: String!): Transaction!
         sendTransactionToClient(id: String!): Transaction!
+        sendTransactionNotification(
+          ids: [String!]!
+          content: String!
+        ): [String!]!
       }
-
     `,
     resolvers: {
       Query: {
         transactions: async (_, { input }) => {
           const transactions = await getTransactions(input);
           return transactions;
-        }
+        },
       },
       Mutation: {
         updateVendor: async (_, { id, vendor }) => {
@@ -74,8 +83,14 @@ const { handleRequest } = createYoga({
           return transaction;
         },
         sendTransactionToClient: async (_, { id }) => {
-          const transaction = await updateStatus({ id, status: "PendingSendToClient" });
+          const transaction = await updateStatus({
+            id,
+            status: "PendingSendToClient",
+          });
           return transaction;
+        },
+        sendTransactionNotification: async (_, { ids, content }) => {
+          return await sendClientNotification({ ids, content });
         },
       },
     },
