@@ -1,9 +1,15 @@
 "use client";
 
 import { DataTable } from "@/design-system/data-table/DataTable.component";
-import { ApolloProvider, gql, useQuery } from "@apollo/client";
+import { ApolloProvider, gql, useMutation, useQuery } from "@apollo/client";
 import { createColumnHelper } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
+
+const SEND_TRANSACTION_NOTIFICATION = gql(`
+mutation SendTransactionNotification($ids: [String!]!, $content: String!) {
+  sendTransactionNotification(ids: $ids, content: $content)
+}
+  `);
 
 type Column = {
   id: String;
@@ -239,6 +245,11 @@ export default function Home() {
       selectedVendor: selectedVendors[transaction.id],
     };
   });
+  const pendingTransactionIds = transactions
+    .filter(
+      (transaction: Column) => transaction.status === "PendingSendToClient"
+    )
+    .map((transaction: Column) => transaction.id);
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
@@ -251,8 +262,14 @@ export default function Home() {
           </button>
           <button onClick={() => setCurrentTable("ToClient")}>To Client</button>
         </div>
-
-        <h1>{currentTable} Table</h1>
+        <div className="flex flex-row gap-8">
+          <h1>{currentTable} Table</h1>
+          {currentTable == "ToClient" && (
+            <GenerateNotificationButton
+              pendingTransactionIds={pendingTransactionIds}
+            />
+          )}
+        </div>
         {loading && <p>Loading...</p>}
         {error && <p>Error: {error.message}</p>}
         {!loading && !error && data && (
@@ -262,3 +279,32 @@ export default function Home() {
     </div>
   );
 }
+
+type GenerateNotificationButtonProps = {
+  pendingTransactionIds: String[];
+};
+const GenerateNotificationButton = ({
+  pendingTransactionIds,
+}: GenerateNotificationButtonProps) => {
+  const [sendTransactionNotification, {}] = useMutation(
+    SEND_TRANSACTION_NOTIFICATION,
+    {
+      variables: {
+        content: "hi",
+        ids: pendingTransactionIds,
+      },
+      onCompleted: (result) => {
+        alert(JSON.stringify(result));
+      },
+      onError: (error) => {
+        alert(JSON.stringify(error));
+      },
+      refetchQueries: [GET_TRANSACTIONS],
+    }
+  );
+  return (
+    <button onClick={() => sendTransactionNotification()}>
+      Send to Client
+    </button>
+  );
+};
