@@ -5,6 +5,18 @@ import { ApolloProvider, gql, useQuery } from "@apollo/client";
 import { createColumnHelper } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 
+const GET_VENDORS = gql(`
+  query Vendors {
+    vendors
+  }
+`);
+
+const GET_CATEGORIES = gql(`
+  query Categories {
+    categories
+  }
+`);
+
 type Column = {
   id: String;
   date: Date;

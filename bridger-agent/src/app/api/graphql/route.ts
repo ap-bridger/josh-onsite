@@ -1,12 +1,15 @@
-import { getTransactions, updateCategory, updateVendor, updateStatus } from "@/server/modules/transactions/api";
+import { getTransactions, updateCategory, updateVendor, updateStatus, getAllVendors, getAllCategories } from "@/server/modules/transactions/api";
 
 import { createSchema, createYoga } from "graphql-yoga";
+import { get } from "http";
 
 const { handleRequest } = createYoga({
   schema: createSchema({
     typeDefs: /* GraphQL */ `
       type Query {
         transactions(input: TransactionsInput!): [Transaction!]!
+        getAllVendors: [String!]!
+        getAllCategories: [String!]!
       }
 
       input TransactionsInput {
@@ -54,7 +57,15 @@ const { handleRequest } = createYoga({
         transactions: async (_, { input }) => {
           const transactions = await getTransactions(input);
           return transactions;
-        }
+        },
+        getAllVendors: async () => {
+          const vendors = await getAllVendors();
+          return vendors;
+        },
+        getAllCategories: async () => {
+          const categories = await getAllCategories();
+          return categories;
+        },
       },
       Mutation: {
         updateVendor: async (_, { id, vendor }) => {
